@@ -26,6 +26,6 @@ after_script:
   - cd public
   - git init
   - git add .
-  - git -c user.name="mengtanx" -c user.email="mengtanx@gmail.com" commit -m "Automatic Deployment"
-  - git push -f -q https://${GitHUB_NAME}:${GITHUB_TOKEN}@github.com/mengtanx/mengtanx.com.git master
+  - git -c user.name=${GITHUB_USERNAME} -c user.email=${GITHUB_EMAIL} commit -m "Automatic Deployment"
+  - git push -f -q https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_USERNAME}.com.git master
   - cd "$TRAVIS_BUILD_DIR"
