@@ -5,6 +5,10 @@ language: python
 python:
     - "3.6"
 
+branches:
+  only:
+    - gh-pages
+
 install:
     # install latest release version
     - wget -qO- https://api.github.com/repos/gohugoio/hugo/releases/latest | sed -r -n '/browser_download_url/{/Linux-64bit.deb/{s@[^:]*:[[:space:]]*"([^"]*)".*@\1@g;p}}' | xargs wget
@@ -16,15 +20,12 @@ script:
     - hugo
     - echo 'www.mengtanx.com' > public/CNAME
 
-deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
-  email: $GITHUB_EMAIL
-  name: $GITHUB_USERNAME
-  verbose: true
-  keep-history: true
-  local-dir: public
-  target_branch: master  # branch contains blog content
-  on:
-    branch: gh-pages  # branch contains Hugo generator code
+after_script:
+  - cd "$TRAVIS_BUILD_DIR"
+  - cp README.md public/
+  - cd public
+  - git init
+  - git add .
+  - git -c user.name="mengtanx" -c user.email="mengtanx@gmail.com" commit -m "Automatic Deployment"
+  - git push -f -q https://${GitHUB_NAME}:${GITHUB_TOKEN}@github.com/mengtanx/mengtanx.com.git master
+  - cd "$TRAVIS_BUILD_DIR"
