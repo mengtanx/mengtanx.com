@@ -1,23 +1,32 @@
-language: go
+# https://docs.travis-ci.com/user/deployment/pages/
+# https://docs.travis-ci.com/user/languages/python/
+language: python
 
-go:
-    - master # This uses automatically the latest version of go
+python:
+    - "3.6"
+
+branches:
+  only:
+    - gh-pages
 
 install:
-    - go get github.com/spf13/hugo # This provides the latest version of Hugo to Travis CI
+    # install latest release version
+    # - wget -qO- https://api.github.com/repos/gohugoio/hugo/releases/latest | sed -r -n '/browser_download_url/{/Linux-64bit.deb/{s@[^:]*:[[:space:]]*"([^"]*)".*@\1@g;p}}' | xargs wget
+    - wget https://github.com/gohugoio/hugo/releases/download/v0.47.1/hugo_0.47.1_Linux-64bit.deb
+    - sudo dpkg -i hugo*.deb
+    - pip install Pygments
+    - rm -rf public 2> /dev/null
 
 script:
-    - hugo # This commands builds your website on travis
+    - hugo
     - echo 'www.mengtanx.com' > public/CNAME
 
-deploy:
-    local_dir: public # Default static site output dir for Hugo
-    repo: mengtanx/mengtanx.com # This is the slug of the repo you want to deploy your site to
-    target_branch: master # GitHub pages branch to deploy to (in other cases it can be gh-pages)
-    provider: pages
-    skip_cleanup: true
-    github_token: ${GITHUB_TOKEN} # This is the authentication which you will setup in the next step in travis-ci dashboard
-    email: ${GITHUB_EMAIL}
-    name: ${GITHUB_USERNAME}
-    on:
-    branch: gh-pages
+after_script:
+  - cd "$TRAVIS_BUILD_DIR"
+  - cp README.md public/
+  - cd public
+  - git init
+  - git add .
+  - git -c user.name=${GITHUB_USERNAME} -c user.email=${GITHUB_EMAIL} commit -m "Automatic Deployment"
+  - git push -f -q https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_USERNAME}.com.git master
+  - cd "$TRAVIS_BUILD_DIR"
